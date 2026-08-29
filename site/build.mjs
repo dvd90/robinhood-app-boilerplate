@@ -33,7 +33,7 @@ const SITE = 'https://dvd90.github.io/robinhood-app-boilerplate/';
 /** 8×8 pixel coin, drawn as rects so it stays crisp at any size. */
 const PIXEL_MARK = (() => {
   const rows = ['..XXXX..', '.XOOOOX.', 'XOWWOOOX', 'XOWOOOOX', 'XOOOOOOX', 'XOOOOSOX', '.XOOOOX.', '..XXXX..'];
-  const fill = { X: '#1b1b1c', O: '#fcb275', W: '#fefefe', S: '#e99e68' };
+  const fill = { X: '#14201b', O: '#ffc233', W: '#fff3cf', S: '#d99b12' };
   const rects = rows
     .flatMap((row, y) => [...row].map((c, x) => (c === '.' ? '' : `<rect x="${x}" y="${y}" width="1" height="1" fill="${fill[c]}"/>`)))
     .join('');
@@ -438,7 +438,7 @@ const html = `<!doctype html>
 <link rel="icon" href="${FAVICON}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="canonical" href="${SITE}">
 <meta property="og:title" content="Robinhood App Boilerplate — ERC-721 + ERC-6551 + revenue vault for Robinhood Chain">
 <meta property="og:description" content="Scaffold a membership NFT whose tokens own wallets, a vault that shares deposited revenue pro-rata, and a factory that clones the pair. Foundry, tested, VERIFY-tagged.">
