@@ -28,6 +28,8 @@ contract MembershipNFT is ERC721Upgradeable, Ownable2StepUpgradeable {
     address public accountImpl;
     /// @dev Tokens are never burned, so ids are exactly 1..totalSupply.
     uint256 public totalSupply;
+    /// @notice Timestamp the current owner acquired `tokenId` (mint or last transfer). Strategy input.
+    mapping(uint256 tokenId => uint256) public heldSince;
 
     constructor() {
         _disableInitializers();
@@ -86,6 +88,11 @@ contract MembershipNFT is ERC721Upgradeable, Ownable2StepUpgradeable {
     function setMintPrice(uint256 mintPrice_) external onlyOwner {
         mintPrice = mintPrice_;
         emit MintPriceUpdated(mintPrice_);
+    }
+
+    function _update(address to, uint256 tokenId, address auth) internal override returns (address from) {
+        heldSince[tokenId] = block.timestamp;
+        return super._update(to, tokenId, auth);
     }
 
     function _sendEth(address to, uint256 amount) internal {
