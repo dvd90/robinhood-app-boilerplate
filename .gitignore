@@ -1,6 +1,27 @@
+# dependencies
+node_modules/
+
+# foundry
 out/
 cache/
-node_modules/
 broadcast/
+coverage/
+lcov.info
+
+# next.js / typescript
+.next/
+next-env.d.ts
+*.tsbuildinfo
+
+# local anvil deploy artefact — real-chain files (deployments/4663.json) ARE tracked
+deployments/31337.json
+
+# secrets: every .env variant except the committed example
 .env
+.env.*
+!.env.example
+
+# OS / editors / logs
 .DS_Store
+.idea/
+*.log
