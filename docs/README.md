@@ -13,6 +13,7 @@
 | [Deploying](guides/deploying.md)                       | The anvil dry run, deploying to Robinhood Chain, `deployments/<chainId>.json`, the VERIFY checklist |
 | [Front end](guides/frontend.md)                        | The optional Next 15 + wagmi/viem app: how it reads the chain, env vars, caveats |
 | [Example: Arcade Guild](guides/example-arcade-guild.md) | A complete project built on the boilerplate without copying it                |
+| [Example: Options Desk Guild](guides/example-options-desk-guild.md) | Plugging into an external protocol: weight by what a membership's TBA holds |
 
 ## Concepts
 

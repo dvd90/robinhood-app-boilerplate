@@ -45,7 +45,9 @@ function weightOf(address nft, uint256 tokenId) external view returns (uint256) 
    `vault.setStrategy()` later (owner only; emits `StrategyUpdated`).
 
 A complete, tested example is [Arcade Guild](example-arcade-guild.md): an owner-set level mapping
-with `weight = 1 + level`.
+with `weight = 1 + level`. For a strategy whose input comes from a contract nobody in the project
+controls, see [Options Desk Guild](example-options-desk-guild.md), which weights each membership by
+what its token-bound account holds in an external protocol.
 
 ## Rules of thumb
 
@@ -53,7 +55,9 @@ with `weight = 1 + level`.
   read is fine; a loop over other tokens is not. Past a few thousand tokens `distribute()` itself needs
   pagination — it is marked in the source.
 - **Never revert.** A reverting `weightOf` bricks every distribution until the strategy is swapped.
-  Return `0` for "not eligible" instead.
+  Return `0` for "not eligible" instead. If you read an external contract, that includes *its*
+  reverts: wrap the call in `try`/`catch` and fall back to `0`, so one broken dependency cannot take
+  the whole round down. [Options Desk Guild](example-options-desk-guild.md) does this and tests it.
 - **Watch the sum.** `totalWeight` is a `uint256` sum of every weight; keep individual weights far
   below `2^200` and overflow is impossible in practice. The vault uses `Math.mulDiv`, so
   `amount × weight` never overflows either.

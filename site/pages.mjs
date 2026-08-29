@@ -17,7 +17,8 @@ export const SECTIONS = [
       { file: 'docs/guides/weight-strategies.md', title: 'Weight strategies' },
       { file: 'docs/guides/deploying.md', title: 'Deploying' },
       { file: 'docs/guides/frontend.md', title: 'Front end' },
-      { file: 'docs/guides/example-arcade-guild.md', title: 'Example: Arcade Guild' }
+      { file: 'docs/guides/example-arcade-guild.md', title: 'Example: Arcade Guild' },
+      { file: 'docs/guides/example-options-desk-guild.md', title: 'Example: Options Desk Guild' }
     ]
   },
   {
