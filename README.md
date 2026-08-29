@@ -141,6 +141,7 @@ deployments/4663.json            # written by Deploy.s.sol, read by the front en
 examples/arcade-guild/           # a project built on the boilerplate via remappings (pruned from scaffolds)
 packages/create-robinhood-app/   # the CLI (pruned from scaffolds)
 docs/                            # this documentation — the site is generated from it
+site/                            # the docs site builder → GitHub Pages (pruned from scaffolds)
 CLAUDE.md                        # conventions and invariants for humans and agents — read first
 ```
 
