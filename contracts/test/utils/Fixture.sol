@@ -18,6 +18,8 @@ abstract contract Fixture is Test {
 
     address treasury = makeAddr("treasury");
     address accountImpl;
+    MembershipNFT nftImpl;
+    RevenueVault vaultImpl;
     MembershipNFT nft;
     RevenueVault vault;
     MockWeightStrategy strategy;
@@ -28,12 +30,14 @@ abstract contract Fixture is Test {
         vm.etch(Constants.ERC6551_REGISTRY, address(new ERC6551Registry()).code);
         accountImpl = address(new ERC6551Account());
 
-        nft = MembershipNFT(Clones.clone(address(new MembershipNFT())));
+        nftImpl = new MembershipNFT();
+        vaultImpl = new RevenueVault();
+        nft = MembershipNFT(Clones.clone(address(nftImpl)));
         nft.initialize(
             "Membership", "MBR", address(this), treasury, PRICE, MAX_SUPPLY, Constants.ERC6551_REGISTRY, accountImpl
         );
         strategy = new MockWeightStrategy();
-        vault = RevenueVault(Clones.clone(address(new RevenueVault())));
+        vault = RevenueVault(Clones.clone(address(vaultImpl)));
         vault.initialize(address(this), address(nft), address(strategy));
         token = new MockRewardToken();
     }
