@@ -122,4 +122,15 @@ contract MembershipNFTTest is Test {
         assertEq(nft.treasury(), bob);
         assertEq(nft.mintPrice(), 1 wei);
     }
+
+    function test_HeldSinceTracksCurrentOwner() public {
+        (uint256 id,) = _mint(alice);
+        uint256 t0 = block.timestamp;
+        assertEq(nft.heldSince(id), t0);
+        skip(100);
+        assertEq(nft.heldSince(id), t0);
+        vm.prank(alice);
+        nft.transferFrom(alice, bob, id);
+        assertEq(nft.heldSince(id), t0 + 100);
+    }
 }
