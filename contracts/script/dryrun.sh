@@ -9,5 +9,6 @@ ANVIL=$!
 trap 'kill $ANVIL' EXIT
 sleep 2
 forge script script/Deploy.s.sol --rpc-url http://127.0.0.1:8545 --private-key "$KEY" --broadcast -q
-forge script script/DryRun.s.sol --rpc-url http://127.0.0.1:8545 --private-key "$KEY" --broadcast -q
+# Print only the script's console.log lines: what happened, in plain words.
+forge script script/DryRun.s.sol --rpc-url http://127.0.0.1:8545 --private-key "$KEY" --broadcast | awk '/== Logs ==/{f=1;next} /^## /{f=0} f'
 cat "deployments/$(cast chain-id --rpc-url http://127.0.0.1:8545).json" 2>/dev/null || cat ../deployments/31337.json

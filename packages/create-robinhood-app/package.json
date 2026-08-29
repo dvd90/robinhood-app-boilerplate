@@ -1,13 +1,34 @@
 {
   "name": "create-robinhood-app",
   "version": "0.1.0",
-  "description": "Scaffold an on-chain project for Robinhood Chain (4663): ERC-721 + ERC-6551 accounts + revenue-share vault, Foundry + Next.",
+  "description": "Scaffold an ERC-721 + ERC-6551 + revenue-vault project for Robinhood Chain (4663)",
   "license": "MIT",
   "type": "module",
-  "bin": { "create-robinhood-app": "bin/index.mjs" },
-  "files": ["bin"],
-  "engines": { "node": ">=20" },
+  "bin": {
+    "create-robinhood-app": "bin/index.mjs"
+  },
+  "files": [
+    "bin"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "test": "bash test.sh"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dvd90/robinhood-app-boilerplate.git",
+    "directory": "packages/create-robinhood-app"
+  },
+  "homepage": "https://dvd90.github.io/robinhood-app-boilerplate/",
+  "keywords": [
+    "robinhood-chain",
+    "foundry",
+    "erc-6551",
+    "erc-721",
+    "revenue-share",
+    "scaffold",
+    "create"
+  ]
 }
