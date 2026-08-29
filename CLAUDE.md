@@ -58,6 +58,8 @@ apps/web/                    # optional (--fullstack)
   lib/robinhood.ts
 deployments/4663.json        # written by deploy, read by frontend
 examples/arcade-guild/       # reference project: builds ON contracts/ via remappings, never copies it
+docs/                        # the documentation; the site is generated from it — update with the code
+site/                        # builds docs/ into one HTML page (GitHub Pages); pruned from scaffolds
 ```
 
 ## Commands (the gate)

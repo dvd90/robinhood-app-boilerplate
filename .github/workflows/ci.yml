@@ -44,3 +44,16 @@ jobs:
           cache: pnpm
       - if: steps.web.outputs.present == 'true'
         run: pnpm install --frozen-lockfile && pnpm -C apps/web tsc --noEmit && pnpm -C apps/web lint
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # site/ is pruned from scaffolds; skip everything below when absent.
+      - id: site
+        run: echo "present=$([ -f site/build.mjs ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+      - if: steps.site.outputs.present == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - if: steps.site.outputs.present == 'true'
+        run: npm ci --prefix site && npm run check --prefix site

@@ -47,6 +47,8 @@ for (const lib of ["forge-std", "openzeppelin-contracts", "openzeppelin-contract
 }
 rm("packages"); // the CLI itself
 rm("examples"); // reference project built on the boilerplate, not user code
+rm("site"); // the docs site builder; docs/ itself stays
+rm(".github/workflows/docs.yml");
 rm("PLAN.md");
 
 if (!fullstack) {

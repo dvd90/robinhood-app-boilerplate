@@ -1,0 +1,43 @@
+# Robinhood App Boilerplate
+
+> A Foundry boilerplate for on-chain projects on Robinhood Chain (chain id 4663).
+> Three contracts: `MembershipNFT` (ERC-721; every token owns an ERC-6551
+> token-bound account), `RevenueVault` (splits explicitly deposited ERC-20
+> revenue across current holders by a pluggable weight), and `Factory`
+> (EIP-1167 deterministic clones of the pair, wired and owned by the caller in
+> one transaction). Game logic lives only behind `IWeightStrategy.weightOf()`.
+> Optional: a Next 15 + wagmi/viem front end (`--fullstack`) and a plain
+> ERC-20 `GameToken` (`--with-token`). `pnpm verify` (forge fmt + forge test
+> incl. fuzz/invariants, + tsc + lint when the web app exists) is the gate.
+
+## Conventions for code generation
+
+- Read `CLAUDE.md` first. Five golden rules; rule 1 is load-bearing: the vault
+  distributes only what arrives through `depositRevenue()`. Never route mint
+  proceeds, sell taxes or any auto-fee into `RevenueVault`.
+- Game mechanics go in an `IWeightStrategy` implementation, never in the vault.
+  The vault must pass its tests against `MockWeightStrategy`.
+- Test first: extend `contracts/test/**` and confirm red before touching `src/`.
+  Anything touching arithmetic or ownership gets a fuzz or invariant run.
+- Solidity ^0.8.24, OpenZeppelin, custom errors (no revert strings), rich events
+  for every state change, checks-effects-interactions, `nonReentrant` on
+  `distribute()` and `claim()`.
+- Clones use `initialize()`; implementations call `_disableInitializers()`.
+- Every chain-4663 address lives in `contracts/src/Constants.sol` and
+  `apps/web/lib/robinhood.ts`, marked `// VERIFY:` until confirmed. Never add an
+  address literal anywhere else.
+- Out of scope, permanently: market-making, multi-wallet or volume tooling,
+  upgradeable clones, owner escape hatches over user funds.
+
+## Docs
+
+- [Getting started](docs/getting-started.md): install → scaffold → test → local run → deploy, ~10 min
+- [Weight strategies](docs/guides/weight-strategies.md): write your own `IWeightStrategy`
+- [Deploying](docs/guides/deploying.md): anvil dry run, Robinhood Chain, env vars, VERIFY checklist
+- [Front end](docs/guides/frontend.md): the optional Next 15 app
+- [Example: Arcade Guild](docs/guides/example-arcade-guild.md): a project built on the boilerplate
+- [Architecture](docs/architecture.md): mint → TBA, deposit → distribute → claim, clones
+- [Economics & trust](docs/economics.md): the revenue-share model and its invariants
+- [Contracts reference](docs/reference/contracts.md): every function, event and error
+- [CLI & scripts](docs/reference/cli.md), [Configuration](docs/reference/configuration.md), [Testing](docs/reference/testing.md)
+- [Agent guide](CLAUDE.md): conventions and invariants
