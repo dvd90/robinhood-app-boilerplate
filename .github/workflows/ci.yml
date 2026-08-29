@@ -18,17 +18,20 @@ jobs:
         env:
           FOUNDRY_PROFILE: ci
   web:
-    if: ${{ hashFiles('apps/web/package.json') != '' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      # Skip everything below on --bare scaffolds (no apps/web).
+      - id: web
+        run: echo "present=$([ -f apps/web/package.json ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+      - if: steps.web.outputs.present == 'true'
+        uses: pnpm/action-setup@v4
         with:
-          version: 10
-      - uses: actions/setup-node@v4
+          version: 11
+      - if: steps.web.outputs.present == 'true'
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm -C apps/web tsc --noEmit
-      - run: pnpm -C apps/web lint
+      - if: steps.web.outputs.present == 'true'
+        run: pnpm install --frozen-lockfile && pnpm -C apps/web tsc --noEmit && pnpm -C apps/web lint
