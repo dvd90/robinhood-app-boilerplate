@@ -17,12 +17,16 @@ for f in bin/index.mjs README.md LICENSE package.json; do
   [[ " $FILES " == *" $f "* ]] || fail "npm tarball is missing $f (has: $FILES)"
 done
 
-# 2. Without Foundry the CLI says what to do; with it, it stays quiet.
+# 2. Without Foundry the CLI says what to do; with it, it stays quiet. The first run also simulates
+#    a machine with no git identity (CI runners, fresh laptops): the scaffold's first commit must land.
 cd "$TMP"
-OUT="$(PATH="/usr/bin:/bin:$NODE_DIR" node "$HERE/bin/index.mjs" hint-app --template "$REPO" 2>&1)"
-grep -q "forge was not found" <<<"$OUT" || fail "CLI did not warn about a missing forge"
-OUT="$(node "$HERE/bin/index.mjs" quiet-app --template "$REPO" 2>&1)"
-grep -q "forge was not found" <<<"$OUT" && fail "CLI warned about forge although it is on PATH"
+NO_IDENTITY=(GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=user.useConfigOnly GIT_CONFIG_VALUE_0=true)
+OUT="$(env "${NO_IDENTITY[@]}" PATH="/usr/bin:/bin:$NODE_DIR" node "$HERE/bin/index.mjs" hint-app --template "$REPO" 2>&1)" \
+  || { echo "$OUT"; fail "CLI failed on a machine without forge or a git identity"; }
+grep -q "forge was not found" <<<"$OUT" || { echo "$OUT"; fail "CLI did not warn about a missing forge"; }
+(cd hint-app && git log -1 --format=%H >/dev/null) || fail "scaffold has no first commit"
+OUT="$(node "$HERE/bin/index.mjs" quiet-app --template "$REPO" 2>&1)" || { echo "$OUT"; fail "CLI failed with forge on PATH"; }
+grep -q "forge was not found" <<<"$OUT" && { echo "$OUT"; fail "CLI warned about forge although it is on PATH"; }
 
 # 3. Simulate a shell that never sourced Foundry's PATH line: verify/dryrun must find ~/.foundry/bin
 #    on their own. (Where forge lives elsewhere, e.g. CI's toolchain action, the PATH is unchanged.)
