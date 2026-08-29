@@ -4,3 +4,4 @@ node_modules/
 broadcast/
 .env
 .DS_Store
+deployments/31337.json
