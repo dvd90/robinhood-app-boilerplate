@@ -467,7 +467,7 @@ const html = `<!doctype html>
 
 <header class="site-header">
   <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav">☰</button>
-  <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">${PIXEL_MARK}</span>Robinhood App</a>
+  <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">${PIXEL_MARK}</span><span class="brand-text">Robinhood App</span></a>
   <span class="header-tag">docs</span>
   <div class="header-links">
     <a href="#getting-started">▶ Start here</a>
