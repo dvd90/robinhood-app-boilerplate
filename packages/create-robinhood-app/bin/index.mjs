@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // create-robinhood-app: clone the template (with forge submodules), prune by flag, rename, git init.
 // No dependencies on purpose: node:fs + git are all a fresh machine has.
-import { execSync } from "node:child_process";
+import { spawnSync, execSync } from "node:child_process";
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createInterface } from "node:readline/promises";
 import { resolve } from "node:path";
@@ -67,8 +67,14 @@ if (fullstack) edit("apps/web/app/layout.tsx", (s) => s.replace('title: "Members
 
 sh("git init --quiet && git add -A && git commit --quiet -m 'chore: scaffold with create-robinhood-app'");
 
-console.log(`
-Done. Next:
+const hasForge = spawnSync("forge", ["--version"], { stdio: "ignore" }).status === 0;
+if (!hasForge) {
+  console.log(`
+Note: forge was not found on your PATH. pnpm verify needs Foundry:
+  curl -L https://foundry.paradigm.xyz | bash && foundryup
+  export PATH="$HOME/.foundry/bin:$PATH"     # if already installed`);
+}
+console.log(`\nDone. Next:
   cd ${name}
   ${fullstack ? "pnpm install && " : ""}pnpm verify        # forge fmt --check && forge test${fullstack ? " && tsc && lint" : ""}
   pnpm dryrun        # anvil: deploy → mint → deposit → distribute
