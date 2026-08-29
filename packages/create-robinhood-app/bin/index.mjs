@@ -46,13 +46,13 @@ for (const lib of ["forge-std", "openzeppelin-contracts", "openzeppelin-contract
   rm(`contracts/lib/${lib}/.git`);
 }
 rm("packages"); // the CLI itself
+rm("examples"); // reference project built on the boilerplate, not user code
 rm("PLAN.md");
 
 if (!fullstack) {
   rm("apps");
   rm("pnpm-workspace.yaml");
   rm("pnpm-lock.yaml");
-  edit("package.json", (s) => s.replace(/,\n\s*"dev": "[^"]*"/, ""));
 }
 if (!withToken) {
   rm("contracts/src/GameToken.sol");

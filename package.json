@@ -3,6 +3,6 @@
   "private": true,
   "scripts": {
     "dryrun": "contracts/script/dryrun.sh",
-    "verify": "cd contracts && forge fmt --check && forge test && cd .. && if [ -f apps/web/package.json ]; then pnpm -C apps/web tsc --noEmit && pnpm -C apps/web lint; fi"
+    "verify": "cd contracts && forge fmt --check && forge test && cd .. && if [ -f apps/web/package.json ]; then pnpm -C apps/web tsc --noEmit && pnpm -C apps/web lint; fi && if [ -d examples/arcade-guild ]; then (cd examples/arcade-guild && forge fmt --check && forge test); fi"
   }
 }

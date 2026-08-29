@@ -57,6 +57,7 @@ contracts/
 apps/web/                    # optional (--fullstack)
   lib/robinhood.ts
 deployments/4663.json        # written by deploy, read by frontend
+examples/arcade-guild/       # reference project: builds ON contracts/ via remappings, never copies it
 ```
 
 ## Commands (the gate)

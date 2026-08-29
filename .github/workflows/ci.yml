@@ -17,6 +17,15 @@ jobs:
         working-directory: contracts
         env:
           FOUNDRY_PROFILE: ci
+      # examples/ is pruned from scaffolds; step-level guard (job-level hashFiles is invalid).
+      - if: hashFiles('examples/arcade-guild/foundry.toml') != ''
+        run: forge fmt --check
+        working-directory: examples/arcade-guild
+      - if: hashFiles('examples/arcade-guild/foundry.toml') != ''
+        run: forge test -vvv
+        working-directory: examples/arcade-guild
+        env:
+          FOUNDRY_PROFILE: ci
   web:
     runs-on: ubuntu-latest
     steps:
