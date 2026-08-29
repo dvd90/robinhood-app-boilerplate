@@ -1,0 +1,13 @@
+{
+  "name": "create-robinhood-app",
+  "version": "0.1.0",
+  "description": "Scaffold an on-chain project for Robinhood Chain (4663): ERC-721 + ERC-6551 accounts + revenue-share vault, Foundry + Next.",
+  "license": "MIT",
+  "type": "module",
+  "bin": { "create-robinhood-app": "bin/index.mjs" },
+  "files": ["bin"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "bash test.sh"
+  }
+}
