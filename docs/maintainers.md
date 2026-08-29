@@ -42,10 +42,39 @@ Deployment is `.github/workflows/docs.yml`: on push to `main` touching `docs/**`
 **Settings → Pages → Source: GitHub Actions**. The site URL is
 `https://dvd90.github.io/robinhood-app-boilerplate/`.
 
+## The gate, and what each part exists for
+
+Every PR runs four CI jobs; all of them also run locally.
+
+| Job / command | Catches |
+| --- | --- |
+| `contracts` — `forge fmt --check && forge test` (ci profile), plus the same in `examples/arcade-guild` | contract regressions, the two headline invariants, the example drifting from the core |
+| `web` — `tsc --noEmit && lint` | front-end type/ABI drift |
+| `docs` — `npm --prefix site run check` | a doc missing from the nav, a dead link, a missing anchor |
+| `cli` — `bash packages/create-robinhood-app/test.sh` | see below |
+
+`test.sh` is the scaffold gate. Each assertion is a bug that shipped once:
+
+1. **npm tarball contents** — `bin/index.mjs`, `README.md`, `LICENSE`, `package.json` (0.1.0 went out without LICENSE).
+2. **The forge hint** — shown when `forge` is absent, silent when present.
+3. **A shell without Foundry on PATH** — the scaffold's `pnpm verify` and `pnpm dryrun` run with `~/.foundry/bin` stripped from PATH; they must find it themselves.
+4. **Bare scaffold** — nothing repo-only survives (`apps`, `examples`, `packages`, `site`, `docs.yml`, `PLAN.md`, `GameToken`); `pnpm verify` green; `pnpm dryrun` prints the `tba reward balance` line the tutorial shows.
+5. **Fullstack + token scaffold** — install and verify green.
+6. **Docs quote the real anvil key** — the account-0 key in `dryrun.sh` must appear verbatim in the example README and guide (a typo cost a debugging loop).
+
+Adding a top-level directory? Add it to the CLI's `rm(...)` list **and** to assertion 4, or the gate fails.
+
+## Stacked PRs
+
+Base every PR on `main` unless it truly needs another PR's changes. If you do stack, merge in order —
+**Automatically delete head branches** is on for the repo, so GitHub retargets the next PR to `main`
+when its base branch disappears. Without that setting a stacked PR merges into its base *branch* and
+`main` silently misses it (it happened once; the fix was a catch-up PR from the last branch to `main`).
+
 ## Release checklist
 
 - [ ] `pnpm verify` green locally, including the example
-- [ ] `bash packages/create-robinhood-app/test.sh` green
+- [ ] `bash packages/create-robinhood-app/test.sh` green (CI runs it too)
 - [ ] `npm --prefix site run check` green
 - [ ] Any new top-level directory added to the CLI prune list (and `test.sh`)
 - [ ] Any new contract function mirrored in `apps/web/lib/abi.ts` and `docs/reference/contracts.md`
