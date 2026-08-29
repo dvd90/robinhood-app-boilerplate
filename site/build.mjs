@@ -33,7 +33,7 @@ const SITE = 'https://dvd90.github.io/robinhood-app-boilerplate/';
 /** 8×8 pixel coin, drawn as rects so it stays crisp at any size. */
 const PIXEL_MARK = (() => {
   const rows = ['..XXXX..', '.XOOOOX.', 'XOWWOOOX', 'XOWOOOOX', 'XOOOOOOX', 'XOOOOSOX', '.XOOOOX.', '..XXXX..'];
-  const fill = { X: '#14201b', O: '#ffc233', W: '#fff3cf', S: '#d99b12' };
+  const fill = { X: '#2a1a14', O: '#ffa62b', W: '#fff0d6', S: '#c2410c' };
   const rects = rows
     .flatMap((row, y) => [...row].map((c, x) => (c === '.' ? '' : `<rect x="${x}" y="${y}" width="1" height="1" fill="${fill[c]}"/>`)))
     .join('');
