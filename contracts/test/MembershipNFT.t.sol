@@ -133,4 +133,28 @@ contract MembershipNFTTest is Test {
         nft.transferFrom(alice, bob, id);
         assertEq(nft.heldSince(id), t0 + 100);
     }
+
+    function test_InitializeRejectsNonContracts() public {
+        MembershipNFT fresh = MembershipNFT(Clones.clone(address(new MembershipNFT())));
+        vm.expectRevert(abi.encodeWithSelector(MembershipNFT.NotAContract.selector, alice));
+        fresh.initialize("x", "x", address(this), treasury, PRICE, MAX_SUPPLY, alice, accountImpl);
+        vm.expectRevert(abi.encodeWithSelector(MembershipNFT.NotAContract.selector, alice));
+        fresh.initialize("x", "x", address(this), treasury, PRICE, MAX_SUPPLY, Constants.ERC6551_REGISTRY, alice);
+    }
+
+    /// A treasury that cannot receive ETH would brick mint(); reject it up front.
+    function test_TreasuryMustAcceptEth() public {
+        address nonPayable = address(new MembershipNFT()); // no receive/fallback
+        vm.expectRevert(abi.encodeWithSelector(MembershipNFT.TreasuryNotPayable.selector, nonPayable));
+        nft.setTreasury(nonPayable);
+
+        MembershipNFT fresh = MembershipNFT(Clones.clone(address(new MembershipNFT())));
+        vm.expectRevert(abi.encodeWithSelector(MembershipNFT.TreasuryNotPayable.selector, nonPayable));
+        fresh.initialize(
+            "x", "x", address(this), nonPayable, PRICE, MAX_SUPPLY, Constants.ERC6551_REGISTRY, accountImpl
+        );
+
+        nft.setTreasury(bob); // EOA is fine
+        assertEq(nft.treasury(), bob);
+    }
 }

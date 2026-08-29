@@ -22,6 +22,9 @@ contract DryRun is Script {
         token.approve(address(vault), 1_000e18);
         vault.depositRevenue(address(token), 1_000e18);
         vault.distribute(address(token));
+        uint256[] memory ids = new uint256[](1);
+        ids[0] = tokenId;
+        vault.claim(address(token), ids);
         vm.stopBroadcast();
 
         console.log("minted tokenId", tokenId, "tba", tba);

@@ -30,6 +30,14 @@ pnpm dryrun   # anvil: deploy → mint → deposit → distribute
 forge script script/Deploy.s.sol --rpc-url robinhood --broadcast   # ROBINHOOD_RPC_URL in env
 ```
 
+## Trust assumptions
+
+- Clones are non-upgradeable; no owner function can move user funds or undistributed vault balances.
+- The vault owner chooses the `IWeightStrategy`, i.e. the weights. A malicious owner can skew a
+  round; they cannot withdraw. Use a multisig/timelock as owner if that matters to your holders.
+- `distribute()` allocates, `claim()` pays into each token's 6551 account. A reward token that
+  refuses one recipient (blocklist/allowlist) blocks only that recipient's claim, never the round.
+
 ## Before a real deploy
 
 Every chain-4663 constant (`contracts/src/Constants.sol`, `apps/web/lib/robinhood.ts`, `foundry.toml`)

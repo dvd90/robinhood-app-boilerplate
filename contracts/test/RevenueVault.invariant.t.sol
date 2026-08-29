@@ -8,7 +8,7 @@ import {RevenueVault} from "../src/RevenueVault.sol";
 import {MockRewardToken} from "./mocks/MockRewardToken.sol";
 import {MockWeightStrategy} from "./mocks/MockWeightStrategy.sol";
 
-/// Random mints, transfers, weight changes, deposits and distributions over two reward tokens.
+/// Random mints, transfers, weight changes, deposits, distributions and claims over two reward tokens.
 contract VaultHandler is Test {
     MembershipNFT nft;
     RevenueVault vault;
@@ -69,6 +69,15 @@ contract VaultHandler is Test {
         if (vault.distributable(address(t)) == 0) return;
         vault.distribute(address(t));
     }
+
+    function claim(uint256 tokenSeed, uint256 idSeed) external {
+        MockRewardToken t = tokens[tokenSeed % tokens.length];
+        uint256 supply = nft.totalSupply();
+        if (supply == 0) return;
+        uint256[] memory ids = new uint256[](1);
+        ids[0] = (idSeed % supply) + 1;
+        vault.claim(address(t), ids);
+    }
 }
 
 contract RevenueVaultInvariantTest is Fixture {
@@ -83,19 +92,21 @@ contract RevenueVaultInvariantTest is Fixture {
         targetContract(address(handler));
     }
 
-    /// Headline invariant: conservation — Σ distributed == deposited − carried dust.
+    /// Headline invariant: conservation — Σ claimed + Σ claimable + carried == Σ deposited,
+    /// and the vault physically holds everything not yet claimed.
     function invariant_Conservation() public view {
         for (uint256 t; t < tokens.length; t++) {
             MockRewardToken tok = tokens[t];
             uint256 carried = vault.distributable(address(tok));
-            assertEq(tok.balanceOf(address(vault)), carried, "vault balance != distributable");
-
-            uint256 paidOut;
             uint256 supply = nft.totalSupply();
+            uint256 claimed;
+            uint256 unclaimed;
             for (uint256 id = 1; id <= supply; id++) {
-                paidOut += tok.balanceOf(nft.tokenBoundAccount(id));
+                claimed += tok.balanceOf(nft.tokenBoundAccount(id));
+                unclaimed += vault.claimable(address(tok), id);
             }
-            assertEq(paidOut + carried, handler.deposited(address(tok)), "value created or lost");
+            assertEq(tok.balanceOf(address(vault)), carried + unclaimed, "vault balance != owed");
+            assertEq(claimed + unclaimed + carried, handler.deposited(address(tok)), "value created or lost");
         }
     }
 }

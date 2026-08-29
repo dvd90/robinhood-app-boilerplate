@@ -11,6 +11,8 @@ export const nftAbi = [
 export const vaultAbi = [
   { type: "function", name: "distributable", stateMutability: "view", inputs: [{ name: "token", type: "address" }], outputs: [{ type: "uint256" }] },
   { type: "function", name: "distribute", stateMutability: "nonpayable", inputs: [{ name: "token", type: "address" }], outputs: [] },
+  { type: "function", name: "claimable", stateMutability: "view", inputs: [{ name: "token", type: "address" }, { name: "tokenId", type: "uint256" }], outputs: [{ type: "uint256" }] },
+  { type: "function", name: "claim", stateMutability: "nonpayable", inputs: [{ name: "token", type: "address" }, { name: "tokenIds", type: "uint256[]" }], outputs: [] },
 ] as const;
 
 export const erc20Abi = [
