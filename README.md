@@ -121,7 +121,9 @@ Every value is documented in [Configuration](docs/reference/configuration.md).
 cd examples/arcade-guild && forge test
 ```
 
-Walkthrough: [Example: Arcade Guild](docs/guides/example-arcade-guild.md).
+Walkthroughs: [Example: Arcade Guild](docs/guides/example-arcade-guild.md) (weight from state the owner
+writes) and [Example: Options Desk Guild](docs/guides/example-options-desk-guild.md) (weight from an
+external protocol, read through the membership's token-bound account).
 
 ## Project structure
 
@@ -150,7 +152,7 @@ CLAUDE.md                        # conventions and invariants for humans and age
 Read it at **[dvd90.github.io/robinhood-app-boilerplate](https://dvd90.github.io/robinhood-app-boilerplate/)** — searchable, one page. The source lives in [`docs/`](docs/README.md) and the site is generated from it, so the two can never disagree:
 
 - **[Getting started](docs/getting-started.md)** — install → scaffold → test → local run → deploy, step by step
-- **Guides** — [weight strategies](docs/guides/weight-strategies.md) · [deploying](docs/guides/deploying.md) · [front end](docs/guides/frontend.md) · [example: Arcade Guild](docs/guides/example-arcade-guild.md)
+- **Guides** — [weight strategies](docs/guides/weight-strategies.md) · [deploying](docs/guides/deploying.md) · [front end](docs/guides/frontend.md) · [example: Arcade Guild](docs/guides/example-arcade-guild.md) · [example: Options Desk Guild](docs/guides/example-options-desk-guild.md)
 - **Concepts** — [architecture](docs/architecture.md) · [economics & trust](docs/economics.md)
 - **Reference** — [contracts](docs/reference/contracts.md) · [CLI & scripts](docs/reference/cli.md) · [configuration](docs/reference/configuration.md) · [testing](docs/reference/testing.md)
 - **[Maintainers guide](docs/maintainers.md)** — publishing the CLI, the docs site, releases

@@ -3,6 +3,6 @@
   "private": true,
   "scripts": {
     "dryrun": "contracts/script/dryrun.sh",
-    "verify": "cd contracts && forge fmt --check && forge test && cd .. && if [ -f apps/web/package.json ]; then pnpm -C apps/web tsc --noEmit && pnpm -C apps/web lint; fi && if [ -d examples/arcade-guild ]; then (cd examples/arcade-guild && forge fmt --check && forge test); fi"
+    "verify": "cd contracts && forge fmt --check && forge test && cd .. && if [ -f apps/web/package.json ]; then pnpm -C apps/web tsc --noEmit && pnpm -C apps/web lint; fi && if [ -d examples ]; then for d in examples/*/; do [ -f \"$d/foundry.toml\" ] || continue; (cd \"$d\" && forge fmt --check && forge test) || exit 1; done; fi"
   }
 }

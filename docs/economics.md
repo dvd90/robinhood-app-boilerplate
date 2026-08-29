@@ -28,6 +28,13 @@ with later members' entry money and the product becomes a different thing with a
 character. Tests: `test_MintProceedsLandAtTreasury_VaultUntouched`, `test_MintNeverTouchesVault`,
 `test_MintProceedsNeverReachFactoryOrVault`, `testFuzz_TransferHasNoTax` (GameToken).
 
+*The line that is easy to blur:* fees your project's own capital **earns** somewhere else — LP fees,
+option premiums, an affiliate cut — are revenue, and depositing them is exactly what the vault is
+for. A hook that **taxes your members' trades** and routes the fee into the vault is not, however
+similar "the protocol sends fees to the vault" makes the two sound. The test is whose money it was
+before it moved: a counterparty's, or a member's. [Options Desk
+Guild](guides/example-options-desk-guild.md) is the compliant version of that integration.
+
 **2. Game mechanics never touch money math.**
 Weight arrives through `IWeightStrategy.weightOf()` and nothing else. The vault's tests run against
 a mock strategy that knows nothing about levels or tenure. *Why:* the money path stays small enough

@@ -178,6 +178,7 @@ You should see `ONCHAIN EXECUTION COMPLETE & SUCCESSFUL.` and a new `deployments
 
 - [Weight strategies](guides/weight-strategies.md) — make the split rule real, with access control and tests
 - [Example: Arcade Guild](guides/example-arcade-guild.md) — a finished project built on the boilerplate
+- [Example: Options Desk Guild](guides/example-options-desk-guild.md) — the same seam, weighting by what an external protocol says a membership holds
 - [Deploying](guides/deploying.md) — the full checklist for chain 4663
 - [Front end](guides/frontend.md) — if you scaffolded with `--fullstack`
 - [Economics & trust](economics.md) — what holders can rely on, what the owner can and cannot do
