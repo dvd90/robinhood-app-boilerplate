@@ -8,6 +8,9 @@ broadcast/
 coverage/
 lcov.info
 
+# docs site build output
+site/dist/
+
 # next.js / typescript
 .next/
 next-env.d.ts
