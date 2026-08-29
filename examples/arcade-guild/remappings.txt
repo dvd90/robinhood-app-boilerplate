@@ -1,0 +1,7 @@
+forge-std/=../../contracts/lib/forge-std/src/
+@openzeppelin/contracts/=../../contracts/lib/openzeppelin-contracts/contracts/
+@openzeppelin/contracts-upgradeable/=../../contracts/lib/openzeppelin-contracts-upgradeable/contracts/
+erc6551/=../../contracts/lib/reference/src/
+robinhood/=../../contracts/src/
+robinhood-test/=../../contracts/test/
+robinhood-script/=../../contracts/script/

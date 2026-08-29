@@ -15,6 +15,7 @@ next-env.d.ts
 
 # local anvil deploy artefact — real-chain files (deployments/4663.json) ARE tracked
 deployments/31337.json
+examples/*/deployments/31337.json
 
 # secrets: every .env variant except the committed example
 .env
