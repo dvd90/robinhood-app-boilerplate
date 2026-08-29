@@ -24,6 +24,7 @@ contract EqualWeightStrategyTest is Fixture {
         }
         _deposit(token, 401);
         vault.distribute(address(token));
+        _claimAll(address(token));
         for (uint256 i; i < 4; i++) {
             assertEq(token.balanceOf(_tba(ids[i])), 100);
         }

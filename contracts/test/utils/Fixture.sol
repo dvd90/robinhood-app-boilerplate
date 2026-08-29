@@ -54,6 +54,21 @@ abstract contract Fixture is Test {
         vault.depositRevenue(address(t), amount);
     }
 
+    /// Claim every minted token's share of `t` into its TBA.
+    function _claimAll(address t) internal {
+        uint256 supply = nft.totalSupply();
+        uint256[] memory ids = new uint256[](supply);
+        for (uint256 i; i < supply; i++) {
+            ids[i] = i + 1;
+        }
+        vault.claim(t, ids);
+    }
+
+    function _ids(uint256 id) internal pure returns (uint256[] memory ids) {
+        ids = new uint256[](1);
+        ids[0] = id;
+    }
+
     function _tba(uint256 id) internal view returns (address) {
         return nft.tokenBoundAccount(id);
     }

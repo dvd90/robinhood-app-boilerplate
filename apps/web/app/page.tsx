@@ -53,7 +53,7 @@ export default function Home() {
       {IS_DEPLOYED && (
         <>
           <Mint disabled={!isConnected || wrongChain} />
-          <Holdings owner={address} />
+          <Holdings owner={address} disabled={!isConnected || wrongChain} />
           <Distribute disabled={!isConnected || wrongChain} />
         </>
       )}

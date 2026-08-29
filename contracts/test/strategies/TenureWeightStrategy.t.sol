@@ -45,6 +45,7 @@ contract TenureWeightStrategyTest is Fixture {
         uint256 b = _mint(bob); // bob: weight 1
         _deposit(token, 500);
         vault.distribute(address(token));
+        _claimAll(address(token));
         assertEq(token.balanceOf(_tba(a)), 400);
         assertEq(token.balanceOf(_tba(b)), 100);
     }

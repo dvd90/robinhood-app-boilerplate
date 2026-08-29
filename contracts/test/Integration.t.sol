@@ -58,6 +58,14 @@ contract IntegrationTest is Test {
         }
     }
 
+    function _claimAll() internal {
+        uint256[] memory ids = new uint256[](N);
+        for (uint256 i; i < N; i++) {
+            ids[i] = i + 1;
+        }
+        vault.claim(address(token), ids);
+    }
+
     function _deposit(uint256 amount) internal {
         token.mint(address(this), amount);
         token.approve(address(vault), amount);
@@ -80,6 +88,8 @@ contract IntegrationTest is Test {
         _deposit(1000);
         vm.prank(makeAddr("anyone"));
         vault.distribute(address(token));
+        vm.prank(makeAddr("anyone"));
+        _claimAll();
 
         for (uint256 i; i < N; i++) {
             uint256 id = i + 1;
@@ -94,6 +104,7 @@ contract IntegrationTest is Test {
         address newOwner = makeAddr("newOwner");
         _deposit(500);
         vault.distribute(address(token));
+        _claimAll();
         address tba1 = nft.tokenBoundAccount(1);
         assertEq(token.balanceOf(tba1), 100);
 
@@ -102,6 +113,7 @@ contract IntegrationTest is Test {
 
         _deposit(500);
         vault.distribute(address(token));
+        _claimAll();
         assertEq(token.balanceOf(tba1), 200);
 
         // Old owner lost control of the TBA, new owner has it.

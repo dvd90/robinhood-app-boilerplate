@@ -15,6 +15,8 @@ contract MembershipNFT is ERC721Upgradeable, Ownable2StepUpgradeable {
     error MaxSupplyReached();
     error InsufficientPayment(uint256 sent, uint256 required);
     error ZeroAddress();
+    error NotAContract(address account);
+    error TreasuryNotPayable(address treasury);
     error EthTransferFailed();
 
     event Minted(uint256 indexed tokenId, address indexed to, address indexed tba);
@@ -45,9 +47,9 @@ contract MembershipNFT is ERC721Upgradeable, Ownable2StepUpgradeable {
         address registry_,
         address accountImpl_
     ) external initializer {
-        if (treasury_ == address(0) || registry_ == address(0) || accountImpl_ == address(0)) {
-            revert ZeroAddress();
-        }
+        _requireContract(registry_);
+        _requireContract(accountImpl_);
+        _requirePayable(treasury_);
         __ERC721_init(name_, symbol_);
         __Ownable_init(owner_);
         __Ownable2Step_init();
@@ -80,7 +82,7 @@ contract MembershipNFT is ERC721Upgradeable, Ownable2StepUpgradeable {
     }
 
     function setTreasury(address treasury_) external onlyOwner {
-        if (treasury_ == address(0)) revert ZeroAddress();
+        _requirePayable(treasury_);
         treasury = treasury_;
         emit TreasuryUpdated(treasury_);
     }
@@ -93,6 +95,18 @@ contract MembershipNFT is ERC721Upgradeable, Ownable2StepUpgradeable {
     function _update(address to, uint256 tokenId, address auth) internal override returns (address from) {
         heldSince[tokenId] = block.timestamp;
         return super._update(to, tokenId, auth);
+    }
+
+    function _requireContract(address account) internal view {
+        if (account.code.length == 0) revert NotAContract(account);
+    }
+
+    /// @dev A treasury that rejects ETH would brick `mint()`. Probe with an empty zero-value call:
+    ///      EOAs and contracts with `receive`/`fallback` accept it, anything else reverts.
+    function _requirePayable(address treasury_) internal {
+        if (treasury_ == address(0)) revert ZeroAddress();
+        (bool ok,) = treasury_.call{value: 0}("");
+        if (!ok) revert TreasuryNotPayable(treasury_);
     }
 
     function _sendEth(address to, uint256 amount) internal {

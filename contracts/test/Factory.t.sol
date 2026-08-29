@@ -108,8 +108,8 @@ contract FactoryTest is Fixture {
         assertEq(vb.distributable(address(token)), 0);
 
         va.distribute(address(token));
-        assertEq(token.balanceOf(a.tokenBoundAccount(1)), 100);
-        assertEq(token.balanceOf(b.tokenBoundAccount(1)), 0);
+        assertEq(va.claimable(address(token), 1), 100);
+        assertEq(vb.claimable(address(token), 1), 0);
     }
 
     function test_MintProceedsNeverReachFactoryOrVault() public {

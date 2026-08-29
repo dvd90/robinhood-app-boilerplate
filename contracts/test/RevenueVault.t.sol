@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {Fixture} from "./utils/Fixture.sol";
 import {RevenueVault} from "../src/RevenueVault.sol";
 import {MockRewardToken} from "./mocks/MockRewardToken.sol";
 import {MockWeightStrategy} from "./mocks/MockWeightStrategy.sol";
 import {ReenteringToken} from "./mocks/ReenteringToken.sol";
+import {BlocklistToken} from "./mocks/BlocklistToken.sol";
 
 contract RevenueVaultTest is Fixture {
     address alice = makeAddr("alice");
@@ -25,7 +27,7 @@ contract RevenueVaultTest is Fixture {
         vault.depositRevenue(address(token), 0);
     }
 
-    function test_DistributeSplitsProRataByWeight() public {
+    function test_DistributeAllocatesProRataByWeight_ClaimPaysTBAs() public {
         uint256 a = _mint(alice);
         uint256 b = _mint(bob);
         uint256 c = _mint(carol);
@@ -35,20 +37,72 @@ contract RevenueVaultTest is Fixture {
         _deposit(token, 600);
 
         vault.distribute(address(token));
+        assertEq(vault.claimable(address(token), a), 100);
+        assertEq(vault.claimable(address(token), b), 200);
+        assertEq(vault.claimable(address(token), c), 300);
+        assertEq(vault.distributable(address(token)), 0);
+        assertEq(token.balanceOf(address(vault)), 600, "distribute must not move tokens");
 
+        _claimAll(address(token));
         assertEq(token.balanceOf(_tba(a)), 100);
         assertEq(token.balanceOf(_tba(b)), 200);
         assertEq(token.balanceOf(_tba(c)), 300);
-        assertEq(vault.distributable(address(token)), 0);
         assertEq(token.balanceOf(address(vault)), 0);
+        assertEq(vault.claimable(address(token), a), 0);
     }
 
-    function test_DistributeIsPermissionless() public {
+    function test_DistributeAndClaimArePermissionless() public {
         uint256 a = _mint(alice);
         _deposit(token, 100);
         vm.prank(makeAddr("anyone"));
         vault.distribute(address(token));
+        vm.prank(makeAddr("anyone else"));
+        vault.claim(address(token), _ids(a));
         assertEq(token.balanceOf(_tba(a)), 100);
+    }
+
+    function test_ClaimTwicePaysOnce() public {
+        uint256 a = _mint(alice);
+        _deposit(token, 100);
+        vault.distribute(address(token));
+        vault.claim(address(token), _ids(a));
+        vault.claim(address(token), _ids(a));
+        assertEq(token.balanceOf(_tba(a)), 100);
+    }
+
+    function test_ClaimAccumulatesAcrossRounds() public {
+        uint256 a = _mint(alice);
+        _deposit(token, 100);
+        vault.distribute(address(token));
+        _deposit(token, 50);
+        vault.distribute(address(token));
+        assertEq(vault.claimable(address(token), a), 150);
+        vault.claim(address(token), _ids(a));
+        assertEq(token.balanceOf(_tba(a)), 150);
+    }
+
+    /// The reason for pull-based claims: one restricted recipient must not block everyone else.
+    function test_BlockedRecipientDoesNotBlockOthers() public {
+        uint256 a = _mint(alice);
+        uint256 b = _mint(bob);
+        BlocklistToken rst = new BlocklistToken();
+        rst.mint(address(this), 100);
+        rst.approve(address(vault), 100);
+        vault.depositRevenue(address(rst), 100);
+        rst.setBlocked(_tba(a), true);
+
+        vault.distribute(address(rst)); // never reverts on recipient state
+        assertEq(vault.claimable(address(rst), a), 50);
+
+        vm.expectRevert(abi.encodeWithSelector(BlocklistToken.Blocked.selector, _tba(a)));
+        vault.claim(address(rst), _ids(a));
+        vault.claim(address(rst), _ids(b));
+        assertEq(rst.balanceOf(_tba(b)), 50);
+        assertEq(vault.claimable(address(rst), a), 50, "blocked share stays claimable");
+
+        rst.setBlocked(_tba(a), false);
+        vault.claim(address(rst), _ids(a));
+        assertEq(rst.balanceOf(_tba(a)), 50);
     }
 
     function test_DustCarriesForward() public {
@@ -57,16 +111,16 @@ contract RevenueVaultTest is Fixture {
         uint256 c = _mint(carol);
         _deposit(token, 100);
         vault.distribute(address(token));
-        assertEq(token.balanceOf(_tba(a)), 33);
-        assertEq(token.balanceOf(_tba(b)), 33);
-        assertEq(token.balanceOf(_tba(c)), 33);
+        assertEq(vault.claimable(address(token), a), 33);
+        assertEq(vault.claimable(address(token), b), 33);
+        assertEq(vault.claimable(address(token), c), 33);
         assertEq(vault.distributable(address(token)), 1, "dust not carried");
 
         _deposit(token, 2);
         vault.distribute(address(token));
-        assertEq(token.balanceOf(_tba(a)), 34);
-        assertEq(token.balanceOf(_tba(b)), 34);
-        assertEq(token.balanceOf(_tba(c)), 34);
+        assertEq(vault.claimable(address(token), a), 34);
+        assertEq(vault.claimable(address(token), b), 34);
+        assertEq(vault.claimable(address(token), c), 34);
         assertEq(vault.distributable(address(token)), 0);
     }
 
@@ -78,7 +132,7 @@ contract RevenueVaultTest is Fixture {
 
         uint256 a = _mint(alice);
         vault.distribute(address(token));
-        assertEq(token.balanceOf(_tba(a)), 100);
+        assertEq(vault.claimable(address(token), a), 100);
     }
 
     function test_ZeroTotalWeightKeepsFunds() public {
@@ -102,12 +156,12 @@ contract RevenueVaultTest is Fixture {
         _deposit(other, 40);
 
         vault.distribute(address(token));
-        assertEq(token.balanceOf(_tba(a)), 100);
-        assertEq(other.balanceOf(_tba(a)), 0);
+        assertEq(vault.claimable(address(token), a), 100);
+        assertEq(vault.claimable(address(other), a), 0);
         assertEq(vault.distributable(address(other)), 40);
 
         vault.distribute(address(other));
-        assertEq(other.balanceOf(_tba(a)), 40);
+        assertEq(vault.claimable(address(other), a), 40);
     }
 
     function test_WeightReadOnlyViaStrategy() public {
@@ -124,8 +178,8 @@ contract RevenueVaultTest is Fixture {
         vault.setStrategy(address(other));
         _deposit(token, 400);
         vault.distribute(address(token));
-        assertEq(token.balanceOf(_tba(a)), 300);
-        assertEq(token.balanceOf(_tba(b)), 100);
+        assertEq(vault.claimable(address(token), a), 300);
+        assertEq(vault.claimable(address(token), b), 100);
     }
 
     function test_ReentrancyGuardHolds() public {
@@ -136,10 +190,11 @@ contract RevenueVaultTest is Fixture {
         evil.mint(address(this), 100);
         evil.approve(address(vault), 100);
         vault.depositRevenue(address(evil), 100);
-
         vault.distribute(address(evil));
 
-        assertEq(evil.reentryAttempts(), 2);
+        _claimAll(address(evil));
+
+        assertEq(evil.reentryAttempts(), 4);
         assertEq(evil.reentrySuccesses(), 0, "reentered");
         assertEq(evil.balanceOf(_tba(a)), 50);
         assertEq(evil.balanceOf(_tba(b)), 50);
@@ -160,6 +215,19 @@ contract RevenueVaultTest is Fixture {
         vault.initialize(address(this), address(nft), address(strategy));
     }
 
+    function test_InitializeRejectsNonContracts() public {
+        RevenueVault fresh = RevenueVault(Clones.clone(address(vaultImpl)));
+        vm.expectRevert(abi.encodeWithSelector(RevenueVault.NotAContract.selector, alice));
+        fresh.initialize(address(this), address(nft), alice);
+        vm.expectRevert(abi.encodeWithSelector(RevenueVault.NotAContract.selector, alice));
+        fresh.initialize(address(this), alice, address(strategy));
+    }
+
+    function test_SetStrategyRejectsNonContract() public {
+        vm.expectRevert(abi.encodeWithSelector(RevenueVault.NotAContract.selector, alice));
+        vault.setStrategy(alice);
+    }
+
     function test_EmitsEvents() public {
         uint256 a = _mint(alice);
         token.mint(address(this), 10);
@@ -169,13 +237,17 @@ contract RevenueVaultTest is Fixture {
         vault.depositRevenue(address(token), 10);
 
         vm.expectEmit(true, true, true, true);
-        emit RevenueVault.Distributed(address(token), 10, 1, 0);
+        emit RevenueVault.Allocated(address(token), a, 10);
         vm.expectEmit(true, true, true, true);
-        emit RevenueVault.Paid(address(token), a, _tba(a), 10);
+        emit RevenueVault.Distributed(address(token), 10, 1, 0);
         vault.distribute(address(token));
+
+        vm.expectEmit(true, true, true, true);
+        emit RevenueVault.Claimed(address(token), a, _tba(a), 10);
+        vault.claim(address(token), _ids(a));
     }
 
-    /// No holder receives more than its weighted share; dust < totalWeight; nothing lost.
+    /// No holder is allocated more than its weighted share; dust < totalWeight; nothing lost.
     function testFuzz_NoHolderExceedsWeightedShare(uint128 amount, uint32 w1, uint32 w2, uint32 w3) public {
         vm.assume(amount > 0 && uint256(w1) + w2 + w3 > 0);
         uint256[3] memory ids = [_mint(alice), _mint(bob), _mint(carol)];
@@ -188,14 +260,14 @@ contract RevenueVaultTest is Fixture {
         _deposit(token, amount);
         vault.distribute(address(token));
 
-        uint256 paid;
+        uint256 allocated;
         for (uint256 i; i < 3; i++) {
-            uint256 got = token.balanceOf(_tba(ids[i]));
+            uint256 got = vault.claimable(address(token), ids[i]);
             assertLe(got, uint256(amount) * w[i] / totalW, "over weighted share");
-            paid += got;
+            allocated += got;
         }
         uint256 dust = vault.distributable(address(token));
-        assertEq(paid + dust, amount, "conservation");
+        assertEq(allocated + dust, amount, "conservation");
         assertLt(dust, totalW, "dust too large");
     }
 }

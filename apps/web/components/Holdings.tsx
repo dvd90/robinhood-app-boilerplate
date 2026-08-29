@@ -1,15 +1,15 @@
 "use client";
 
 import { formatUnits, type Address } from "viem";
-import { useReadContract, useReadContracts } from "wagmi";
-import { erc20Abi, nftAbi } from "@/lib/abi";
-import { NFT_ADDRESS, REWARD_TOKENS } from "@/lib/robinhood";
+import { useReadContract, useReadContracts, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { erc20Abi, nftAbi, vaultAbi } from "@/lib/abi";
+import { NFT_ADDRESS, REWARD_TOKENS, VAULT_ADDRESS } from "@/lib/robinhood";
 
 const nft = { address: NFT_ADDRESS, abi: nftAbi } as const;
 
-/// Tokens owned by `owner`, each with its 6551 account and the reward balances sitting in it.
+/// Tokens owned by `owner`: each token's 6551 account, reward balances sitting in it, and claimable shares.
 // ponytail: scans ownerOf(1..totalSupply) on every render; index Minted/Transfer events if maxSupply grows large.
-export function Holdings({ owner }: { owner?: Address }) {
+export function Holdings({ owner, disabled }: { owner?: Address; disabled: boolean }) {
   const { data: supply } = useReadContract({ ...nft, functionName: "totalSupply" });
   const ids = Array.from({ length: Number(supply ?? 0n) }, (_, i) => BigInt(i + 1));
 
@@ -32,12 +32,21 @@ export function Holdings({ owner }: { owner?: Address }) {
     ]),
     query: { enabled: REWARD_TOKENS.length > 0 },
   });
-  const { data: balances } = useReadContracts({
-    contracts: tbaList.flatMap((tba) =>
-      REWARD_TOKENS.map((token) => ({ address: token, abi: erc20Abi, functionName: "balanceOf", args: [tba] }) as const),
+  // Per (owned token, reward token): [balanceOf(tba), claimable(token, id)]
+  const { data: amounts, refetch } = useReadContracts({
+    contracts: owned.flatMap((id, i) =>
+      REWARD_TOKENS.flatMap((token) => [
+        { address: token, abi: erc20Abi, functionName: "balanceOf", args: [tbaList[i] ?? NFT_ADDRESS] } as const,
+        { address: VAULT_ADDRESS, abi: vaultAbi, functionName: "claimable", args: [token, id] } as const,
+      ]),
     ),
-    query: { enabled: tbaList.length > 0 && REWARD_TOKENS.length > 0 },
+    query: { enabled: tbaList.length === owned.length && owned.length > 0 && REWARD_TOKENS.length > 0 },
   });
+  const cell = (i: number, t: number, k: 0 | 1) => amounts?.[(i * REWARD_TOKENS.length + t) * 2 + k]?.result as bigint | undefined;
+
+  const { writeContract, data: hash, isPending, error } = useWriteContract();
+  const { isLoading: confirming, isSuccess } = useWaitForTransactionReceipt({ hash, query: { enabled: !!hash } });
+  if (isSuccess) void refetch();
 
   if (!owner) return null;
 
@@ -62,10 +71,23 @@ export function Holdings({ owner }: { owner?: Address }) {
                 {REWARD_TOKENS.map((token, t) => {
                   const symbol = meta?.[t * 2]?.result as string | undefined;
                   const decimals = meta?.[t * 2 + 1]?.result as number | undefined;
-                  const bal = balances?.[i * REWARD_TOKENS.length + t]?.result;
+                  const fmt = (v?: bigint) => (v !== undefined && decimals !== undefined ? formatUnits(v, decimals) : "…");
+                  const pending = cell(i, t, 1);
                   return (
                     <div key={token}>
-                      {bal !== undefined && decimals !== undefined ? formatUnits(bal, decimals) : "…"} {symbol ?? ""}
+                      {fmt(cell(i, t, 0))} {symbol ?? ""}
+                      {pending ? (
+                        <>
+                          {" "}
+                          <span className="muted">+{fmt(pending)} claimable</span>{" "}
+                          <button
+                            disabled={disabled || isPending || confirming}
+                            onClick={() => writeContract({ address: VAULT_ADDRESS, abi: vaultAbi, functionName: "claim", args: [token, owned] })}
+                          >
+                            Claim
+                          </button>
+                        </>
+                      ) : null}
                     </div>
                   );
                 })}
@@ -74,6 +96,7 @@ export function Holdings({ owner }: { owner?: Address }) {
           ))}
         </tbody>
       </table>
+      {error && <p className="muted">{error.message.split("\n")[0]}</p>}
       {/* VERIFY: value in USD via the official Robinhood Chain price feed once its address is confirmed. */}
     </section>
   );
