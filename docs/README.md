@@ -2,12 +2,15 @@
 
 **Start here:** [Getting started](getting-started.md) — install, scaffold, test, run locally, deploy. About 10 minutes.
 
+**New to crypto?** Read the [tutorial](tutorial.md) first — every concept in plain words, with diagrams and a worked example.
+
 **Using an AI agent?** Point it at [CLAUDE.md](../CLAUDE.md) — the five golden rules, the TDD workflow and the gate it must keep green.
 
 ## Tutorials & guides
 
 | Doc                                                    | What it covers                                                                 |
 | ------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| [Tutorial](tutorial.md)                                | What you built and what you can build with it, in plain words — no crypto background needed |
 | [Getting started](getting-started.md)                  | Five steps from nothing to a deployed project, each with the output you should see |
 | [Weight strategies](guides/weight-strategies.md)       | `IWeightStrategy`, the two shipped strategies, writing your own, what a bad one can do |
 | [Deploying](guides/deploying.md)                       | The anvil dry run, deploying to Robinhood Chain, `deployments/<chainId>.json`, the VERIFY checklist |

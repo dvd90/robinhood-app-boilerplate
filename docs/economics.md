@@ -53,7 +53,7 @@ The **NFT owner** (the deployer, or whoever they hand it to via the two-step tra
 
 | Can                                      | Cannot                                                        |
 | ---------------------------------------- | ------------------------------------------------------------- |
-| change `mintPrice` (future mints only)   | mint for free or above `maxSupply`                            |
+| change `mintPrice` (future mints only, public via `MintPriceUpdated`) | mint above `maxSupply`, or at any price other than the public one |
 | change `treasury` (must accept ETH)      | touch any token-bound account or its contents                 |
 | —                                        | burn, freeze or transfer members' tokens; there is no such function |
 

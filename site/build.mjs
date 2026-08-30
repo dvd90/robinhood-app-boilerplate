@@ -211,7 +211,7 @@ function extractCode(md, blocks) {
 function codeHtml({ lang, code }) {
   const label = lang === 'text' ? 'code' : lang;
   return (
-    `<div class="code"><div class="code-head">` +
+    `<div class="code" data-lang="${escapeHtml(lang)}"><div class="code-head">` +
     `<span class="code-lang">${escapeHtml(label)}</span>` +
     `<button class="copy" type="button">copy</button></div>` +
     `<pre><code>${highlight(code, lang)}</code></pre></div>`
@@ -495,6 +495,7 @@ const html = `<!doctype html>
       <p>Membership NFTs that own their own wallets, a vault that splits explicitly deposited revenue across holders by a weight you write in ten lines, and a factory that clones the pair. Tested with fuzz and invariants; every chain address VERIFY-tagged until you confirm it.</p>
       <div class="hero-cta">
         <a class="button orange" href="#getting-started">▶ Start here</a>
+        <a class="button ghost" href="#tutorial">New to crypto? Tutorial</a>
         <a class="button ghost" href="https://github.com/${REPO}">View on GitHub</a>
       </div>
       <div class="start-strip">
