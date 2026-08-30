@@ -44,6 +44,27 @@ jobs:
           cache: pnpm
       - if: steps.web.outputs.present == 'true'
         run: pnpm install --frozen-lockfile && pnpm -C apps/web tsc --noEmit && pnpm -C apps/web lint
+  cli:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      # packages/ is pruned from scaffolds; skip everything below when absent.
+      - id: cli
+        run: echo "present=$([ -f packages/create-robinhood-app/test.sh ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+      - if: steps.cli.outputs.present == 'true'
+        uses: foundry-rs/foundry-toolchain@v1
+      - if: steps.cli.outputs.present == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - if: steps.cli.outputs.present == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - if: steps.cli.outputs.present == 'true'
+        run: bash packages/create-robinhood-app/test.sh
   docs:
     runs-on: ubuntu-latest
     steps:

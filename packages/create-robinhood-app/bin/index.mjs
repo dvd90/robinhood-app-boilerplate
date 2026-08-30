@@ -65,7 +65,14 @@ edit("package.json", (s) => s.replace("robinhood-app-boilerplate", name));
 edit("README.md", (s) => s.replace(/^# .*$/m, `# ${name}`));
 if (fullstack) edit("apps/web/app/layout.tsx", (s) => s.replace('title: "Membership"', `title: "${name}"`));
 
-sh("git init --quiet && git add -A && git commit --quiet -m 'chore: scaffold with create-robinhood-app'");
+// A machine with no git identity (CI runners, fresh laptops) must still get its first commit.
+let identity = "";
+try {
+  execSync("git config user.email", { cwd: dir, stdio: "pipe" });
+} catch {
+  identity = "-c user.name=create-robinhood-app -c user.email=create-robinhood-app@users.noreply.github.com ";
+}
+sh(`git init --quiet && git add -A && git ${identity}commit --quiet -m 'chore: scaffold with create-robinhood-app'`);
 
 const hasForge = spawnSync("forge", ["--version"], { stdio: "ignore" }).status === 0;
 if (!hasForge) {

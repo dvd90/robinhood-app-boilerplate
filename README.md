@@ -95,7 +95,7 @@ Architectural invariants the tests enforce. The full rationale is in [Economics 
 | `forge test` (in `contracts/`)                                     | unit + fuzz + invariant tests; `FOUNDRY_PROFILE=ci` for CI depth       |
 | `forge script script/Deploy.s.sol --rpc-url robinhood --broadcast` | deploy to chain 4663, writes `deployments/4663.json`                  |
 | `pnpm -C apps/web dev`                                             | run the front end (if scaffolded with `--fullstack`)                  |
-| `bash packages/create-robinhood-app/test.sh`                       | scaffold bare + fullstack into a temp dir and verify both (maintainers) |
+| `bash packages/create-robinhood-app/test.sh`                       | the scaffold gate: tarball, forge hint, bare + fullstack from a fresh shell, dryrun, docs (CI runs it) |
 
 ## Configuration
 
