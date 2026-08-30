@@ -31,6 +31,7 @@
 
 ## Docs
 
+- [Tutorial](docs/tutorial.md): every concept in plain words, diagrams, a worked example — for non-crypto readers
 - [Getting started](docs/getting-started.md): install → scaffold → test → local run → deploy, ~10 min
 - [Weight strategies](docs/guides/weight-strategies.md): write your own `IWeightStrategy`
 - [Deploying](docs/guides/deploying.md): anvil dry run, Robinhood Chain, env vars, VERIFY checklist

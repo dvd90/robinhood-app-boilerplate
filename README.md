@@ -2,7 +2,7 @@
 
 **Membership NFTs that own wallets, a vault that shares revenue with them, and a factory that clones the pair — for Robinhood Chain. Scaffold, test, ship.**
 
-**[📖 Documentation](https://dvd90.github.io/robinhood-app-boilerplate/)** · [Start here](docs/getting-started.md) · [create-robinhood-app on npm](https://www.npmjs.com/package/create-robinhood-app)
+**[📖 Documentation](https://dvd90.github.io/robinhood-app-boilerplate/)** · [Start here](docs/getting-started.md) · [New to crypto?](docs/tutorial.md) · [create-robinhood-app on npm](https://www.npmjs.com/package/create-robinhood-app)
 
 ## Start here
 
@@ -149,6 +149,7 @@ CLAUDE.md                        # conventions and invariants for humans and age
 
 Read it at **[dvd90.github.io/robinhood-app-boilerplate](https://dvd90.github.io/robinhood-app-boilerplate/)** — searchable, one page. The source lives in [`docs/`](docs/README.md) and the site is generated from it, so the two can never disagree:
 
+- **[Tutorial](docs/tutorial.md)** — what you built and what you can build with it, in plain words, for non-crypto readers
 - **[Getting started](docs/getting-started.md)** — install → scaffold → test → local run → deploy, step by step
 - **Guides** — [weight strategies](docs/guides/weight-strategies.md) · [deploying](docs/guides/deploying.md) · [front end](docs/guides/frontend.md) · [example: Arcade Guild](docs/guides/example-arcade-guild.md)
 - **Concepts** — [architecture](docs/architecture.md) · [economics & trust](docs/economics.md)

@@ -13,6 +13,7 @@ export const SECTIONS = [
   {
     title: 'Guides',
     pages: [
+      { file: 'docs/tutorial.md', title: 'Tutorial: plain words' },
       { file: 'docs/getting-started.md', title: 'Getting started' },
       { file: 'docs/guides/weight-strategies.md', title: 'Weight strategies' },
       { file: 'docs/guides/deploying.md', title: 'Deploying' },

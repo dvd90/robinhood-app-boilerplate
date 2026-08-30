@@ -10,6 +10,8 @@ Words you will meet, once, right here:
 - **Vault** — the contract that receives revenue and splits it across every card, paying each share into that card's wallet.
 - **Weight** — how big a card's share is. You decide the rule; the vault only asks for a number.
 
+The long version, with pictures and a worked example: [Tutorial](tutorial.md).
+
 ## Step 1 — Install the tools
 
 You need [Foundry](https://getfoundry.sh) (compiles and tests the contracts, runs a local chain), Node.js 20 or newer, and pnpm.

@@ -227,6 +227,8 @@ img, svg { image-rendering: pixelated; shape-rendering: crispEdges; }
 .copy.is-done { background: var(--phosphor); border-color: var(--phosphor); color: var(--ink); }
 .code pre { margin: 0; padding: 1rem 1.1rem; overflow-x: auto; }
 .code code { font-family: var(--mono); font-size: 14px; line-height: 1.6; color: #fbeee6; }
+/* Box-drawing glyphs are not in the Google-Fonts Plex subset; keep diagrams in one local face so columns line up. */
+.code[data-lang=text] code { font-family: ui-monospace, Menlo, Consolas, "Liberation Mono", monospace; }
 .t-comment { color: #c9998a; }
 .t-string  { color: #ffd98a; }
 .t-keyword { color: var(--gold); }
