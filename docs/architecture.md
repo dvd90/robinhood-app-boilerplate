@@ -95,6 +95,27 @@ Every state change emits: `Minted`, `TreasuryUpdated`, `MintPriceUpdated`, `Reve
 any indexer read these, not storage layouts. The full list with parameters is in
 [Contracts](reference/contracts.md).
 
+## Compared to Uniswap v4 hooks
+
+If you know [Uniswap v4 hooks](https://developers.uniswap.org/docs/get-started/concepts/hooks),
+`IWeightStrategy` is the same shape: a small, audited core that calls out to a pluggable contract
+at a fixed point, and never learns what that contract does internally.
+
+| Uniswap v4                                            | Here                                                  |
+| ----------------------------------------------------- | ----------------------------------------------------- |
+| PoolManager — core, fixed, audited                    | `RevenueVault` — money math, invariant-tested, fixed  |
+| Hook — custom logic per pool                          | Weight strategy — custom logic per project            |
+| Many callbacks (`beforeSwap`, `afterSwap`, …), can mutate outcomes | One `view` call, `weightOf(nft, id)`, returns a number |
+| Hook fixed per pool at creation                       | Strategy swappable by the vault owner (`StrategyUpdated`) |
+| CREATE2 address with permission flags mined in        | `cloneDeterministic` with a namespaced salt           |
+
+The strategy's surface is deliberately smaller than a hook's: read-only, one call site, no way to
+move funds. Combining the two is fine in one direction only. A pool you own earning fees that
+something then pushes into `depositRevenue()` is exactly the model — revenue earned elsewhere,
+explicitly deposited (`UNISWAP_ROUTER` in `Constants.sol` is a VERIFY-tagged placeholder for this).
+A hook that taxes transfers of the membership or `GameToken` and auto-routes the tax into the
+vault is the forbidden auto-tax path — rule 1 — and volume or market-making hooks are rule 3.
+
 ## Where things live
 
 | Concern                     | File                                              |
